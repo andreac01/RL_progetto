@@ -1,7 +1,7 @@
 -- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2022.2 (win64) Build 3671981 Fri Oct 14 05:00:03 MDT 2022
--- Date        : Tue Mar  7 20:59:12 2023
+-- Date        : Tue Mar  7 21:29:23 2023
 -- Host        : DESKTOP-63K1NV0 running 64-bit major release  (build 9200)
 -- Command     : write_vhdl -mode funcsim -nolib -force -file
 --               C:/Users/andre/OneDrive/Desktop/Reti_logiche/RL_progetto/project_1/project_1.sim/sim_1/synth/func/xsim/project_tb_func_synth.vhd
