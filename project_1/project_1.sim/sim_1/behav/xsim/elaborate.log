@@ -14,5 +14,5 @@ Compiling package ieee.numeric_std
 Compiling package ieee.std_logic_arith
 Compiling package ieee.std_logic_unsigned
 Compiling architecture arch_project_reti_logiche of entity xil_defaultlib.project_reti_logiche [project_reti_logiche_default]
-Compiling architecture projecttb3 of entity xil_defaultlib.project_tb
+Compiling architecture projecttb16 of entity xil_defaultlib.project_tb
 Built simulation snapshot project_tb_behav

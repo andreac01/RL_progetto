@@ -36,5 +36,5 @@ Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="000000000000000
 Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="00000000000100000000...]
 Compiling architecture lut5_v of entity unisim.LUT5 [\LUT5(init="00010000000000000000...]
 Compiling architecture structure of entity xil_defaultlib.project_reti_logiche [project_reti_logiche_default]
-Compiling architecture project_example_tb of entity xil_defaultlib.project_tb
+Compiling architecture projecttb16 of entity xil_defaultlib.project_tb
 Built simulation snapshot project_tb_func_synth

@@ -1,4 +1,4 @@
 Time resolution is 1 ps
-Failure: Simulation Ended! TEST PASSATO (EXAMPLE)
-Time: 57900 ns  Iteration: 0  Process: /project_tb/testRoutine  File: C:/Users/andre/OneDrive/Desktop/Reti_logiche/RL_progetto/project_1/project_1.srcs/sim_1/new/tb_3.vhd
-$finish called at time : 57900 ns : File "C:/Users/andre/OneDrive/Desktop/Reti_logiche/RL_progetto/project_1/project_1.srcs/sim_1/new/tb_3.vhd" Line 542
+Failure: Simulation Ended! TEST PASSATO 
+Time: 35 us  Iteration: 0  Process: /project_tb/testRoutine  File: C:/Users/andre/OneDrive/Desktop/Reti_logiche/RL_progetto/project_1/project_1.srcs/sim_1/new/tb_16.vhd
+$finish called at time : 35 us : File "C:/Users/andre/OneDrive/Desktop/Reti_logiche/RL_progetto/project_1/project_1.srcs/sim_1/new/tb_16.vhd" Line 336
