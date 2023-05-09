@@ -89,11 +89,7 @@ begin
     -- Setting di o_mem_en con il contested
     contested_memory : process(i_clk, i_start)
     begin
-        if i_clk = '0' then
-            o_mem_en <= contested_mem_en and not i_start;
-        else 
-            o_mem_en <= '0';
-        end if;
+        o_mem_en <= contested_mem_en and not i_start;
     end process;
     
     -- DMUX:
