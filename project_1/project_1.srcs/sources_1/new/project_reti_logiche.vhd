@@ -88,7 +88,7 @@ begin
     
     -- DMUX:
     -- Quando è richiesta la scrittura seleziona il canale sulla base di reg_ch
-    ch_dmux : process(reg_ch) 
+    ch_dmux : process(reg_ch, write) 
     -- Processo combinatorio
     begin
         we_z0 <= '0';
@@ -97,57 +97,57 @@ begin
         we_z3 <= '0';
         case reg_ch is
             when "00" =>
-                we_z0 <= '1';
+                we_z0 <= write;
             when "01" =>
-                we_z1 <= '1';
+                we_z1 <= write;
             when "10" =>
-                we_z2 <= '1';
+                we_z2 <= write;
             when "11" =>
-                we_z3 <= '1';
+                we_z3 <= write;
             when others =>
         end case;
     end process;
     
     -- Registro di memoria per salvare l'ultimo valore utile sul canale
-    reg_z0_calc : process(i_clk, i_rst, we_z0, i_mem_data, write)
+    reg_z0_calc : process(i_clk, i_rst, we_z0, i_mem_data)
     -- Processo sequenziale
     begin
         if i_rst = '1' then
             reg_z0 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z0='1' and write='1' then
+        elsif i_clk'event and i_clk='1' and we_z0='1' then
             reg_z0 <= i_mem_data;
         end if;
     end process;
     
      -- Registro di memoria per salvare l'ultimo valore utile sul canale
-    reg_z1_calc : process(i_clk, i_rst, we_z1, i_mem_data, write)
+    reg_z1_calc : process(i_clk, i_rst, we_z1, i_mem_data)
     -- Processo sequenziale
     begin
         if i_rst = '1' then
             reg_z1 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z1='1' and write='1' then
+        elsif i_clk'event and i_clk='1' and we_z1='1' then
             reg_z1 <= i_mem_data;
         end if;
     end process;
     
     -- Registro di memoria per salvare l'ultimo valore utile sul canale
-    reg_z2_calc : process(i_clk, i_rst, we_z2, i_mem_data, write)
+    reg_z2_calc : process(i_clk, i_rst, we_z2, i_mem_data)
     -- Processo sequenziale
     begin
         if i_rst = '1' then
             reg_z2 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z2='1' and write='1' then
+        elsif i_clk'event and i_clk='1' and we_z2='1' then
             reg_z2 <= i_mem_data;
         end if;
     end process;
     
     -- Registro di memoria per salvare l'ultimo valore utile sul canale
-    reg_z3_calc : process(i_clk, i_rst, we_z3, i_mem_data, write)
+    reg_z3_calc : process(i_clk, i_rst, we_z3, i_mem_data)
     -- Processo sequenziale
     begin
         if i_rst = '1' then
             reg_z3 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z3='1' and write='1' then
+        elsif i_clk'event and i_clk='1' and we_z3='1' then
             reg_z3 <= i_mem_data;
         end if;
     end process;
