@@ -23,11 +23,12 @@ end project_reti_logiche;
 architecture arch_project_reti_logiche of project_reti_logiche is
 
     -- Descrizione segnale rappresentante lo stato della FSM
-    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, ASK_MEM, WRITE_OUT, ENABLE_OUT);
+    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, ASK_MEM, ENABLE_OUT);
     signal curr_state : STATE;
     
     -- Descrizione segnale attivazione uscita
     signal out_en : std_logic;
+    signal prefire_done : std_logic;
     
     --Descrizione segnali per gestione del calcolo e salvataggio del canale di uscita corrente
     signal we_ch : std_logic;
@@ -37,6 +38,7 @@ architecture arch_project_reti_logiche of project_reti_logiche is
     signal we_addr : std_logic;
     signal clr_addr : std_logic;
     signal reg_addr : unsigned(0 to 15);
+    signal contested_mem_en : std_logic;
     
     -- Descrizione segnali per abilitare l'aggiornamento dei canali di uscita
     signal write : std_logic;
@@ -79,10 +81,18 @@ begin
     end process;
     
     -- Accede all'indirizzo di memoria contenuto nel registro reg_addr
-    mem_access : process(i_clk, we_addr)
+    mem_access : process(i_start)
     begin
-        if i_clk'event and i_clk='1' and we_addr='1' then
-            o_mem_addr <= std_logic_vector(reg_addr);
+        o_mem_addr <= std_logic_vector(reg_addr);
+    end process;
+    
+    -- Setting di o_mem_en con il contested
+    contested_memory : process(i_clk, i_start)
+    begin
+        if i_clk = '0' then
+            o_mem_en <= contested_mem_en and not i_start;
+        else 
+            o_mem_en <= '0';
         end if;
     end process;
     
@@ -114,7 +124,7 @@ begin
     begin
         if i_rst = '1' then
             reg_z0 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z0='1' then
+        elsif we_z0='1' then
             reg_z0 <= i_mem_data;
         end if;
     end process;
@@ -125,7 +135,7 @@ begin
     begin
         if i_rst = '1' then
             reg_z1 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z1='1' then
+        elsif we_z1='1' then
             reg_z1 <= i_mem_data;
         end if;
     end process;
@@ -136,7 +146,7 @@ begin
     begin
         if i_rst = '1' then
             reg_z2 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z2='1' then
+        elsif we_z2='1' then
             reg_z2 <= i_mem_data;
         end if;
     end process;
@@ -147,15 +157,17 @@ begin
     begin
         if i_rst = '1' then
             reg_z3 <= "00000000";
-        elsif i_clk'event and i_clk='1' and we_z3='1' then
+        elsif we_z3='1' then
             reg_z3 <= i_mem_data;
         end if;
     end process;
     
     -- Calcolo delle uscite dei canali
-    out_en_calc : process(out_en)
+    out_en_calc : process(i_clk)
     begin
-        o_done <= out_en;
+        if i_clk'event and i_clk='0' then
+            o_done <= out_en;
+        end if;
     end process;
     
     o_z : process(out_en, reg_z0, reg_z1, reg_z2, reg_z3)
@@ -193,9 +205,7 @@ begin
                         curr_state <= ASK_MEM;
                     end if;
                 when ASK_MEM =>
-                     curr_state <= WRITE_OUT;
-                when WRITE_OUT =>
-                    curr_state <= ENABLE_OUT;
+                     curr_state <= ENABLE_OUT;
                 when ENABLE_OUT =>
                     curr_state <= WAIT_START;
             end case;
@@ -212,7 +222,7 @@ begin
         clr_addr <= '1';
         write <= '0';
         o_mem_we <= '0';
-        o_mem_en <= '0';
+        contested_mem_en <= '0';
         out_en <= '0';
         
         case curr_state is
@@ -224,17 +234,18 @@ begin
                 we_ch <='0';
                 we_addr <= '1';
                 clr_addr <= '0';
+                contested_mem_en <= '1';
+                
             when ASK_MEM=>
+                prefire_done <= '1';
                 we_addr <= '0';
-                o_mem_en <= '1';
                 clr_addr <= '0';
-            when WRITE_OUT =>
-                we_addr <= '0';
-                o_mem_en <= '1';
+                contested_mem_en <= '0';
+                out_en <= '1';
                 write <= '1';
             when ENABLE_OUT =>
                 write <= '0';
-                out_en<='1';
+                out_en<='0';
         end case;
     end process;
 end arch_project_reti_logiche;
