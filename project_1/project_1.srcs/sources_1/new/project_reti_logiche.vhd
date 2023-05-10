@@ -29,6 +29,7 @@ architecture arch_project_reti_logiche of project_reti_logiche is
     -- Descrizione segnale attivazione uscita
     signal out_en : std_logic;
     signal prefire_done : std_logic;
+    signal show_transparent : std_logic;
     
     --Descrizione segnali per gestione del calcolo e salvataggio del canale di uscita corrente
     signal we_ch : std_logic;
@@ -120,7 +121,7 @@ begin
     begin
         if i_rst = '1' then
             reg_z0 <= "00000000";
-        elsif we_z0='1' then
+        elsif i_clk'event and i_clk='0' and we_z0='1' then
             reg_z0 <= i_mem_data;
         end if;
     end process;
@@ -131,7 +132,7 @@ begin
     begin
         if i_rst = '1' then
             reg_z1 <= "00000000";
-        elsif we_z1='1' then
+        elsif i_clk'event and i_clk='0' and we_z1='1' then
             reg_z1 <= i_mem_data;
         end if;
     end process;
@@ -142,7 +143,7 @@ begin
     begin
         if i_rst = '1' then
             reg_z2 <= "00000000";
-        elsif we_z2='1' then
+        elsif i_clk'event and i_clk='0' and we_z2='1' then
             reg_z2 <= i_mem_data;
         end if;
     end process;
@@ -153,7 +154,7 @@ begin
     begin
         if i_rst = '1' then
             reg_z3 <= "00000000";
-        elsif we_z3='1' then
+        elsif i_clk'event and i_clk='0' and we_z3='1' then
             reg_z3 <= i_mem_data;
         end if;
     end process;
@@ -163,23 +164,21 @@ begin
     begin
         if i_clk'event and i_clk='0' then
             o_done <= out_en;
+            show_transparent <= out_en;
         end if;
     end process;
     
-    o_z : process(out_en, reg_z0, reg_z1, reg_z2, reg_z3)
+    o_z : process(out_en, reg_z0, reg_z1, reg_z2, reg_z3, show_transparent)
     -- Processo combinatorio
     begin
-        if out_en = '0' then
-            o_z0 <= "00000000";
-            o_z1 <= "00000000";
-            o_z2 <= "00000000";
-            o_z3 <= "00000000";
-        else
-            o_z0 <= reg_z0;
-            o_z1 <= reg_z1;
-            o_z2 <= reg_z2;
-            o_z3 <= reg_z3;
-       end if;
+        o_z0 <= reg_z0 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
+        o_z1 <= reg_z1 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
+        o_z2 <= reg_z2 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
+        o_z3 <= reg_z3 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
+    end process;
+        
+    reset_o_zX : process(i_rst)
+    begin
     end process;
     
     -- Descrizione funzione di stato della FSM
