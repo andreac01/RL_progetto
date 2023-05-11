@@ -27,7 +27,7 @@ architecture arch_project_reti_logiche of project_reti_logiche is
     signal curr_state : STATE;
     
     -- Descrizione segnale attivazione uscita
-    signal out_en : std_logic;
+    signal out_en : std_logic := '0';
     signal prefire_done : std_logic;
     signal show_transparent : std_logic;
     
@@ -160,11 +160,15 @@ begin
     end process;
     
     -- Calcolo delle uscite dei canali
-    out_en_calc : process(i_clk)
+    out_en_calc : process(i_clk, i_rst)
     begin
         if i_clk'event and i_clk='0' then
             o_done <= out_en;
             show_transparent <= out_en;
+        end if;
+        if i_rst = '1' then
+            o_done <= '0';
+            show_transparent <= '0';
         end if;
     end process;
     
@@ -177,10 +181,6 @@ begin
         o_z3 <= reg_z3 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
     end process;
         
-    reset_o_zX : process(i_rst)
-    begin
-    end process;
-    
     -- Descrizione funzione di stato della FSM
     fsm : process(i_rst, i_clk)
     -- Processo sequenziale
