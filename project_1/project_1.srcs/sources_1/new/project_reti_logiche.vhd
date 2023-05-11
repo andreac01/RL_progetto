@@ -23,7 +23,7 @@ end project_reti_logiche;
 architecture arch_project_reti_logiche of project_reti_logiche is
 
     -- Descrizione segnale rappresentante lo stato della FSM
-    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, ASK_MEM, ENABLE_OUT);
+    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, ASK_MEM);
     signal curr_state : STATE;
     
     -- Descrizione segnale attivazione uscita
@@ -200,9 +200,7 @@ begin
                         curr_state <= ASK_MEM;
                     end if;
                 when ASK_MEM =>
-                     curr_state <= ENABLE_OUT;
-                when ENABLE_OUT =>
-                    curr_state <= WAIT_START;
+                     curr_state <= WAIT_START;
             end case;
         end if;
     end process;
@@ -229,8 +227,7 @@ begin
                 we_ch <='0';
                 we_addr <= '1';
                 clr_addr <= '0';
-                contested_mem_en <= '1';
-                
+                contested_mem_en <= '1';   
             when ASK_MEM=>
                 prefire_done <= '1';
                 we_addr <= '0';
@@ -238,9 +235,6 @@ begin
                 contested_mem_en <= '0';
                 out_en <= '1';
                 write <= '1';
-            when ENABLE_OUT =>
-                write <= '0';
-                out_en<='0';
         end case;
     end process;
 end arch_project_reti_logiche;
