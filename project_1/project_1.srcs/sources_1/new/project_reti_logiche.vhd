@@ -28,7 +28,7 @@ architecture arch_project_reti_logiche of project_reti_logiche is
     
     -- Descrizione segnale attivazione uscita
     signal out_en : std_logic := '0';
-    signal prefire_done : std_logic;
+    signal prefire_done : std_logic := '0';
     signal show_transparent : std_logic;
     
     --Descrizione segnali per gestione del calcolo e salvataggio del canale di uscita corrente
@@ -39,7 +39,7 @@ architecture arch_project_reti_logiche of project_reti_logiche is
     signal we_addr : std_logic;
     signal clr_addr : std_logic;
     signal reg_addr : unsigned(0 to 15);
-    signal contested_mem_en : std_logic;
+    signal contested_mem_en : std_logic := '0';
     
     -- Descrizione segnali per abilitare l'aggiornamento dei canali di uscita
     signal write : std_logic;
