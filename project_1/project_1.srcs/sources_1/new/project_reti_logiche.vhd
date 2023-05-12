@@ -23,13 +23,12 @@ end project_reti_logiche;
 architecture arch_project_reti_logiche of project_reti_logiche is
 
     -- Descrizione segnale rappresentante lo stato della FSM
-    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, ASK_MEM);
+    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, WRITE_OUT);
     signal curr_state : STATE;
     
     -- Descrizione segnale attivazione uscita
     signal out_en : std_logic := '0';
-    signal prefire_done : std_logic := '0';
-    signal show_transparent : std_logic;
+    signal show_transparent : std_logic := '0';
     
     --Descrizione segnali per gestione del calcolo e salvataggio del canale di uscita corrente
     signal we_ch : std_logic;
@@ -197,9 +196,9 @@ begin
                      curr_state <= GET_ADDR;           
                 when GET_ADDR =>
                     if i_start = '0' then
-                        curr_state <= ASK_MEM;
+                        curr_state <= WRITE_OUT;
                     end if;
-                when ASK_MEM =>
+                when WRITE_OUT =>
                      curr_state <= WAIT_START;
             end case;
         end if;
@@ -224,16 +223,12 @@ begin
             when GET_CHANNEL =>
                 we_ch <='1';
             when GET_ADDR =>
-                we_ch <='0';
                 we_addr <= '1';
                 clr_addr <= '0';
                 contested_mem_en <= '1';   
-            when ASK_MEM=>
-                prefire_done <= '1';
-                we_addr <= '0';
-                clr_addr <= '0';
-                contested_mem_en <= '0';
+            when WRITE_OUT=>
                 out_en <= '1';
+                clr_addr <= '0';
                 write <= '1';
         end case;
     end process;
