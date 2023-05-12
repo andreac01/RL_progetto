@@ -27,9 +27,8 @@ architecture arch_project_reti_logiche of project_reti_logiche is
     signal curr_state : STATE;
     
     -- Descrizione segnale attivazione uscita
-    signal out_en : std_logic := '0';
     signal prefire_done : std_logic := '0';
-    signal show : std_logic;
+    signal show : std_logic := '0';
     
     --Descrizione segnali per gestione del calcolo e salvataggio del canale di uscita corrente
     signal we_ch : std_logic;
@@ -160,7 +159,7 @@ begin
     end process;
     
    
-    o_z : process(out_en, reg_z0, reg_z1, reg_z2, reg_z3, i_clk, i_rst, show)
+    o_z : process( reg_z0, reg_z1, reg_z2, reg_z3, i_clk, i_rst, show)
     -- Processo combinatorio
     begin
         o_z0 <= reg_z0 and (show, show, show, show, show, show, show, show);
@@ -207,7 +206,6 @@ begin
         write <= '0';
         o_mem_we <= '0';
         contested_mem_en <= '0';
-        out_en <= '0';
         show <= '0';
         
         case curr_state is
@@ -223,9 +221,7 @@ begin
             when WRITE_IN=>
                 clr_addr <= '0';
                 contested_mem_en <= '1';
-                out_en <= '1';
                 write <= '1';
-                out_en <= '1';  
             when DONE =>
                 show <= '1';        
         end case;
