@@ -219,7 +219,7 @@ begin
                 contested_mem_en <= '1';   
             when WRITE_IN=>
                 clr_addr <= '0';
-                contested_mem_en <= '0';
+                contested_mem_en <= '1';
                 write <= '1';
             when DONE =>
                 out_en <= '1';        
