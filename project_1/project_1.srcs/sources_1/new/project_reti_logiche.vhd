@@ -27,8 +27,7 @@ architecture arch_project_reti_logiche of project_reti_logiche is
     signal curr_state : STATE;
     
     -- Descrizione segnale attivazione uscita
-    signal prefire_done : std_logic := '0';
-    signal show : std_logic := '0';
+    signal out_en : std_logic := '0';
     
     --Descrizione segnali per gestione del calcolo e salvataggio del canale di uscita corrente
     signal we_ch : std_logic;
@@ -159,14 +158,14 @@ begin
     end process;
     
    
-    o_z : process( reg_z0, reg_z1, reg_z2, reg_z3, i_clk, i_rst, show)
+    o_z : process( reg_z0, reg_z1, reg_z2, reg_z3, i_clk, i_rst, out_en)
     -- Processo combinatorio
     begin
-        o_z0 <= reg_z0 and (show, show, show, show, show, show, show, show);
-        o_z1 <= reg_z1 and (show, show, show, show, show, show, show, show);
-        o_z2 <= reg_z2 and (show, show, show, show, show, show, show, show);
-        o_z3 <= reg_z3 and (show, show, show, show, show, show, show, show);
-        o_done <= show;
+        o_z0 <= reg_z0 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+        o_z1 <= reg_z1 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+        o_z2 <= reg_z2 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+        o_z3 <= reg_z3 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+        o_done <= out_en;
     end process;
         
     -- Descrizione funzione di stato della FSM
@@ -206,7 +205,7 @@ begin
         write <= '0';
         o_mem_we <= '0';
         contested_mem_en <= '0';
-        show <= '0';
+        out_en <= '0';
         
         case curr_state is
             when WAIT_START =>
@@ -220,10 +219,10 @@ begin
                 contested_mem_en <= '1';   
             when WRITE_IN=>
                 clr_addr <= '0';
-                contested_mem_en <= '1';
+                contested_mem_en <= '0';
                 write <= '1';
             when DONE =>
-                show <= '1';        
+                out_en <= '1';        
         end case;
     end process;
 end arch_project_reti_logiche;
