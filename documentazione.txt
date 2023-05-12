@@ -1,0 +1,211 @@
+documentclass[12 pt]{article}
+usepackage[utf8]{inputenc}
+usepackage[T1]{fontenc}
+usepackage[italian]{babel}
+usepackage{graphicx} % Required for inserting images
+usepackage{hyperref}
+usepackage{svg}
+usepackage[export]{adjustbox}
+
+
+title{textbf{Prova Finale Progetto di Reti logice}}
+author{Andrea Cerutti, Marco Alfano}
+date{a.a. 2022-2023}
+
+begin{document}
+
+maketitle
+hspace{60 pt}
+begin{center}
+    includegraphics[scale = 0.5]{imagespolitecnico_logo.png}
+end{center}
+
+begin{theindex}
+    item hyperref[intro]{1 Introduzione}
+        subitem hyperref[intro]{ 1.1 Obiettivi}
+        subitem hyperref[spec]{ 1.2 Specifiche generali}
+        subitem hyperref[comp]{ 1.3 Descrizione Componente}
+        subitem hyperref[mem]{ 1.4 Descrizione Memoria}
+
+indexspace
+    item hyperref[intro]{2 Architettura}
+        subitem hyperref[deserializzatore]{ 2.1 Deserializzatore}
+        subitem hyperref[demux]{ 2.2 De-multiplexer}
+        subitem hyperref[registri]{ 2.3 Registri in uscita}
+        subitem hyperref[fsm]{ 2.4 FSM}
+        subitem hyperref[supporto]{ 2.5 Moduli di supporto}
+indexspace
+    item hyperref[]{ 3 Sintesi}
+        subitem hyperref[]{ 3.1 Utilization}
+        subitem hyperref[]{ 3.1 Timing}
+        subitem hyperref[]{ 3.2 Schematica}
+indexspace
+    item hyperref[]{ 4 Simulazione}
+        subitem hyperref[]{ 4.1 Funzionamento generale e casi base}
+        subitem hyperref[]{ 4.2 Reset}
+indexspace
+    item hyperref[conclusioni]{ 5 Conclusioni }
+end{theindex}
+
+section{Introduzione}
+label{intro}
+    subsection{ Obiettivi}
+    Lo scopo del progetto è quello di sintetizzare un componente hardware avente le caratteristiche descritte nelle sezioni hyperref[spec]{1.2}, hyperref[comp]{1.3} e hyperref[mem]{1.4}. Il linguaggio di descrizione hardware richiesto è VHDL da utilizzare insieme al software Vivado utilizzato per sintesi e simulazioni.
+    
+subsection{Specifiche generali}
+    label{spec}
+    Il componente hardware da sintetizzare deve essere in grado di eseguire correttamente le seguenti operazioni
+    begin{enumerate}
+        item Deserializzare una sequenza di dati in input composta da
+        begin{itemize}
+            item Esattamente 2 bit rappresentanti il codice identificativo del canale di uscita da utilizzare.
+            item Una serie di bit avente lunghezza compresa tra 0 e 16. Questa sequenza rappresenta la componente meno significativa di un indirizzo di memoria a 16 bit (ogni eventuale bit mancante è da considerare uguale a '0').
+        end{itemize}
+        item Richiedere ad una memoria, da intendersi come componente esterno, la parola contenuta all'indirizzo di 16 bit precedentemente calcolato.
+        item Salvare la parola di 8 bit ottenuta dalla memoria e condividerla per un ciclo di clock sul canale di uscita precedentemente calcolato. Durante questo ciclo di clock sugli altri 3 canali di uscita verranno condivisi i valori che avevano assunto durante l'iterazione precedente.
+    Sono inoltre presenti alcune restrizioni
+    begin{itemize}
+        item Il componente deve essere funzionante quando il periodo di clock è almeno 100 ns.
+        item Il numero di cicli di clock che intercorrono tra  fine della lettura dell'input serializzato alla pubblicazione sui canali di uscita deve essere minore di 20.
+    end{itemize}
+    end{enumerate}
+subsection{Descrizione componente}
+    Il modulo richiesto presenta due ingressi primari da 1 bit ciascuno che rappresentano il segnale di inizio (START) e l'ingresso dell'input serializzato (W). Sono inoltre presenti in ingresso il segnale di clock (CLK) e un segnale di reset (RESET) che permette di reinizializzare il modulo ponendo i contenuti salvati sui canali di uscita al valore '00000000' e portando lo stato della FSM corrispondente al valore iniziale.
+    Di seguito riportiamo uno schema basilare del componente. Da notare che l'interfaccia con la memoria è solamente abbozzata in quanto verrà specificata nella prossima sezione.
+    newline
+    begin{center}
+        includegraphics[scale=0.65]{imagesmodulo.png}
+    end{center}
+label{comp}
+subsection{Descrizione memoria}
+label{mem}
+    La memoria con cui il componente deve interfacciarsi è da considerarsi come un modulo separato il cui comportamento rispetta le specifiche di seguito descritte.
+    La memoria riceve in ingresso i seguenti segnali
+    begin{itemize}
+        item clk  corrispettivo del segnale di clock (CLK)
+        item we   segnale composto da un bit che se posto a '1' permette l'accesso alla memoria in scrittura, se posto a '0' permette l'accesso in lettura.
+        item en   segnale che attiva l'interfaccia della memoria. Quando posto a '1' è possibile accedere in lettura o scrittura alla memoria. Quando posto a '0' non è possibile eseguire operazioni su di essa memoria.
+        item addr segnale di 16 bit in parallelo che rappresentano l'indirizzo di memoria cui accedere.
+        item di   segnale di 8 bit in parallelo che rappresenta la parola da scrivere in memoria. Nel casi in cui en='0' eo we='0' questo segnale non viene utilizzato.
+    end{itemize}
+    In uscita invece troviamo un unico segnale
+    begin{itemize}
+        item do   segnale di 8 bit in parallelo che rappresentano la parola di memoria letta o scritta a seconda del valore di we.
+    end{itemize}
+    Di seguito quindi riportiamo una schematica della memoria
+    begin{center}
+        includegraphics[scale=0.32]{imagesmemoria.png}
+    end{center}
+    Un'ulteriore informazione particolarmente significativa per la modellizzazione del nostro componente è il tempo di risposta della memoria. Essa infatti presenta un ritardo pari a 2ns tra l'istante in cui viene richiesta eo effettuata un'operazione sulla memoria e la propagazione dell'output corrispondente sul segnale do.
+    Risulta importante notare che per i nostri scopi la scrittura in memoria risulta superflua.
+pagebreak
+
+
+
+
+
+
+
+
+
+label{architettura}
+section{Architettura}
+    Prima di entrare nei dettagli di ogni modulo presente nel componente diamo una visione d'insime della sua struttura. I moduli principali sono un deserializzatore per leggere e salvare il segnale in inpunt, un blocco di 4 registri in uscita per salvare gli output precedenti, una macchina a stati finiti per pilotare correttamente questi componenti e gestire l'interfaccia con la memoria. A questi componenti si aggiungono altri moduli secondari e di supporto.
+    label{deserializzatore}
+    subsection{Deserializzatore}
+        Il primo modulo del progetto è un deserializzatore ovvero un componente in grado di trasformare una sequenza seriale di bit in ingresso in un segnale parallelo equivalente. Per gli scopi del progetto il componente deve essere pilotabile in modo da deserializzare scrivendo, a scelta, su due registri differenti
+        begin{itemize}
+            item reg_ch registro di 2 bit utilizzato per comunicare il canale di uscita correntemente selezionato.
+            item reg_addr registro di 16 bit utilizzato per comunicare l'indirizzo di memoria da cui leggere.
+        end{itemize}
+        Per quanto riguarda gli ingressi del componente troviamo
+        begin{itemize}
+            item i_clk è il segnale di clock comune a tutti i processi sequenziali del progetto
+            item i_w è l'ingresso seriale a singolo bit da cui vengono letti il codice del canale di uscita e l'indirizzo di memoria.
+            item i_start è il segnale che determina il periodo di attività del modulo qunado posto a '1' il deserializzatore viene abilitato.
+            item we_ch è il segnale che determina l'inizio della conversione del segnale seriale in ingresso che trasporta l'informazione relativa al canale di uscita.
+            item we_addr è il segnale che determina la conversione del segnale seriale in ingresso che trasporta l'informazione relativa all'indirizzo di memoria.
+            item clr_addr è un segnale utilizzato per svuotare il registro relativo all'indirizzo di memoria. Tale operazione è resa necessaria dalla possibilità di ricevere tale indirizzo come una sequenza di bit di lunghezza variabile (tra 0 e 16 bit).
+        end{itemize}
+        Da notare che gli ultimi 3 segnali non fanno parte degli input definiti dalle specifiche bensì sono segnali pilotati da una macchina a stati finiti.
+        Inoltre data la sua struttura questo modulo è stato descritto in VHDL attraverso due processi distinti.
+        Per descrivere questo componente abbiamo sfruttato il segnale 'unsigned' fornito dalla libreria numeric_std. Questo tipo infatti fornisce l'operazione di shift che risulta particolarmente utile per questa applicazione.
+    label{demux}
+    subsection{De-multiplexer}
+        Il secondo modulo è un componente ben noto dal corso di reti logiche. Si tratta infatti di un semplice DMUX che permette di selezionare il registro di uscita tra i quattro possibili. In particolare i segnali relativi a questo componente sono
+        begin{itemize}
+            item reg_ch segnale di due bit proveniente dal deserializzatore che rappresenta la codifica binaria del canale di uscita da abilitare.
+            item write rappresenza il segnale da propagare per abilitare il canale di uscita selezionato.
+            item we_z0, we_z1, we_z2, we_z3 rappresentano le uscite del DMUX. Ogni uscita abilita la scrittura sul registro di uscita corrispondente. Questi segnali sono tutti posti di default a '0' e quando selezionati assumono il valore del segnale 'write'.
+        end{itemize}
+    label{registri}
+    subsection{Registri in uscita}
+        Il terzo componente è composto dall'insieme di 4 identici moduli con lo scopo di mantenere memoria dell'ultima parola trasmessa su ogni canale di uscita. I segnali coinvolti nella gestione di ciascun registro sono
+        begin{itemize}
+            item i_clk come tutti i componenti sequenziali nel progetto anche questi registri richiedo il segnale di clock in ingresso.7
+            item i_rst se posto a '1' porta 
+            item we_zi è il segnale in ingresso all'i-esimo registro che abilita la scrittura su di esso (i=0..3).
+            item i_mem_data è la parola di memoria in ingresso al componente. Se la scrittura è abilitata questo segnale di 8 bit viene salvato nel registro.
+        end{itemize}
+    label{fsm}
+    subsection{FSM}
+        Altro modulo fondamentale del componente richiesto è una macchina a stati adibita alla gestione e integrazione dei differenti moduli.
+        In particolare si tratta di una macchina di Moore che lavora sul fronte di salita del clock e che può essere riportata asincronamente allo stato iniziale ponendo i_rst al valore '1'.
+        I segnali pilotati dalla FSM sono
+        begin{itemize}
+            item we_ch Comunica al deserializzatore che deve deserializzare sul registro relativo alla scelta del canale in uscita. Il valore di default è '0'.
+            item we_add Comunica al deserializzatore che deve deserializzare sul registro relativo alla selezione dell'indirizzo di memoria. Il valore di default è '0'.
+            item clr_addr Comunica al deserializzatore la necessità di svuotare il registro relativo all'indirizzo di memoria. Il valore di default è '1'.
+            item write Abilita la scrittura sul registro di uscita selezionato dal DMUX. Il valore di default è '0'.
+            item o_mem_we è il segnale che abilita la scrittura sulla memoria a '0'. Il valore di default è '0' e non viene mai modificato.
+            item contested_mem_en Segnale utilizzato come lock 
+            per abilitare o disabilitare la possibilità di porre o_mem_en a '1'. Il valore di default è '0'.
+            item out_en corrisponde al segnale o_done. I due segnali vengono sincronizzati da un processo esterno sul fronte di discesa del clock. Il valore di default è '0'.
+        end{itemize}
+        Gli stati della FSM sono 4 e vengono sintetizzati da vivado utilizzando una codifica one-hot. Di seguito spieghiamo brevemente il loro funzionamento.
+        begin{itemize}
+            item WAIT_START In questo stato il componente si trova in attesa che il segnale di start assuma il valore '1'. Per ottenere correttamente il primo bit relativo al canale di uscita il deserializzatore continua a scrivere sul registro corrispondente. Questa ottimizzazione è resa possibile dal fatto che il canale di uscita è sempre identificato tramite una sequenza di 2 bit. Per questo motivo in questo stato we_ch ha valore '1'. Quando start assume valore '1' la macchina passa allo stato GET_CHANNEL.
+            item GET_CHANNEL In questo stato il deserializzatore ascolta il secondo bit relativo al canale di uscita. Pertanto anche in questo stato we_ch assume il valore '1'. Il componente quindi rimane in questo stato solamente per un ciclo di clock prima di passare a GET_ADDR.
+            item GET_ADDR Dopo aver terminato di deserializzare l'indirizzo del canale di uscita la FSM imposta l'uscita we_addr al valore '1' e clr_addr a '0'. Ciò porta il deserializzatore ad elaborare l'indirizzo di memoria leggendo da i_w. Inoltre viene posto contested_mem_en a '1' cosa che permette attraverso un ulteriore processo di supporto richiedere la parola di memoria nella posizione correntemente calcolata non appena i_start assume il valore '0'. Sul fronte di salita successivo a i_start = '0' lo stato della macchina passa a WRITE_OUT.
+            item WRITE_IN In questo stato la macchina riceve la risposta da parte della memoria nella prima metà del clock. Sul fronte di discesa, ovvero a metà del clock corrispondente a questo stato, viene effettuata la scrittura dei valori letti dalla memoria sul registro corrispondente al canale selezionato. Per compiere queste le operazioni di  lettura clr_addr viene posto a '0' mentre contested_mem_addr viene posto a '1'. Per abilitare la scrittura sui registri write è posto a '1'. Al termine del ciclo di clock la macchina passa allo stato DONE.
+            item DONE in questo stato vengono semplicemente abilitate le uscite o_z1..o_z3 ponendo il valore out_en a '1'. Da notare che out_en corrisponde all'uscita o_done che quindi assume valore '1' durante questo stato. Dopo un solo ciclo di clock si ritorna allo stato WAIT_START.
+        end{itemize}
+        Di seguito quindi riportiamo un grafico rappresentante il comportamento della FSM. Le uscite non specificate hanno valori di default.
+        includegraphics[scale = 0.6, center]{imagesFSM.png}
+    label{supporto}
+    subsection{Moduli di supporto}
+        Per ridurre a un singolo ciclo di clock il tempo richiesto per le elaborazioni da compiere tra i_start = '0' e o_done = '1' abbiamo deciso di compiere alcune elaborazioni sul fronte di discesa del clock. Queste elaborazioni si traducono in dei ritardi introdotti da due moduli di supporto che permettono alla FSM di porre dei segnali a '1' mezzo ciclo di clock prima che essi vengano convertiti sui segnali che pilotano. Questi due moduli di supporto si traducono in due nuovi processi in VHDL.
+        subsubsection{Supporto 1 - o_mem_en}
+            Il primo modulo di supporto compie l'assegnamento
+                o_mem_out = contested_mem_en and not i_start;
+            Ciò, data la struttura della FSM implica che o_mem_en abbia il valore '1' solamente nel ciclo di clock appena successivo al termine dell'input, cosa che permette una richiesta immediata di lettura dalla memoria
+        subsubsection{Supporto 2 - o_done}
+            Il secondo modulo di supporto è un componente sequenziale che assegna il valore di out_en ad o_done ad ogni fronte di discesa del clock.
+            Questo componente inoltre gestisce il segnale utilizzato per mostrare o meno il contenuto dei registri reg_z0..reg_z3 sulle uscite corrispettive.
+    subsection{Schematica completa}
+        Alla luce di quanto esposto in questa sezione riportiamo una schematica più precisa del componente richiesto.
+        includegraphics[scale = 0.45, center]{imagescomponente_new.png}
+
+pagebreak
+
+
+
+
+
+
+
+
+
+
+
+label{conclusioni}
+section{Conclusioni}
+    
+    Nel nostro progetto abbiamo posto il focus non solo sull'ottenere un componente funzionante sia in pre che in post sintesi ma anche sul migliorare il più possibile le sue performance spingendoci oltre i requisiti richiesti.
+    Grazie ad un analisi della schematica e delle simulazioni siamo stati in grado di ottenere un'implementazione del componente in grado di completare le operazioni richieste dalla specifica in 3 semicicli di clock.
+    Seppure questa scelta possa essere più rischiosa in quanto ci ha obbligato a lavorare su entrambi i fronti di clock complicando non solo il codice ma anche la logica di comportamento del componente, riteniamo fosse la quella migliore. Infatti ci ha permesso di ragionare a fondo e trovare soluzioni ad un numero molto maggiore di problemi, cosa che ci ha permesso di approfondire maggiormente la materia. 
+    Inoltre riteniamo di essere stati in grado di ottenere un risultato finale relativamente chiaro e che utilizza anche un numero molto basso di flip-flop.
+    In ogni caso siamo perfettamente consapevoli che nel mondo lavorativo una volta rispettate le specifiche lo sforzo per incrementare le performance non sia necessario ed anzi possa portare a correre rischi evitabili. Tuttavia essendo un progetto universitario abbiamo pensato che lo sforzo di ottimizzazione (anche alla luce delle tematiche del corso) potesse essere apprezzato.
+
+
+end{document}
