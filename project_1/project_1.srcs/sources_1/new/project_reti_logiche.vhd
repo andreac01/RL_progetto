@@ -23,7 +23,7 @@ end project_reti_logiche;
 architecture arch_project_reti_logiche of project_reti_logiche is
 
     -- Descrizione segnale rappresentante lo stato della FSM
-    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, ASK_MEM);
+    type STATE is (WAIT_START, GET_CHANNEL, GET_ADDR, WRITE_IN);
     signal curr_state : STATE;
     
     -- Descrizione segnale attivazione uscita
@@ -90,7 +90,9 @@ begin
     -- Setting di o_mem_en con il contested
     contested_memory : process(i_clk, i_start)
     begin
-        o_mem_en <= contested_mem_en and not i_start;
+        if i_clk='0' then
+            o_mem_en <= contested_mem_en and not i_start;
+        end if;
     end process;
     
     -- DMUX:
@@ -159,26 +161,23 @@ begin
         end if;
     end process;
     
-    -- Calcolo delle uscite dei canali
-    out_en_calc : process(i_clk, i_rst)
-    begin
-        if i_clk'event and i_clk='0' then
-            o_done <= out_en;
-            show_transparent <= out_en;
-        end if;
-        if i_rst = '1' then
-            o_done <= '0';
-            show_transparent <= '0';
-        end if;
-    end process;
-    
-    o_z : process(out_en, reg_z0, reg_z1, reg_z2, reg_z3, show_transparent)
+   
+    o_z : process(out_en, reg_z0, reg_z1, reg_z2, reg_z3, i_clk, i_rst)
     -- Processo combinatorio
     begin
-        o_z0 <= reg_z0 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
-        o_z1 <= reg_z1 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
-        o_z2 <= reg_z2 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
-        o_z3 <= reg_z3 and (show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent, show_transparent);
+        if i_rst='1' then
+            o_z0 <= "00000000";
+            o_z1 <= "00000000";
+            o_z2 <= "00000000";
+            o_z3 <= "00000000";
+            o_done <= '0';
+        elsif i_clk'event and i_clk='1' then
+            o_z0 <= reg_z0 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+            o_z1 <= reg_z1 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+            o_z2 <= reg_z2 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+            o_z3 <= reg_z3 and (out_en, out_en, out_en, out_en, out_en, out_en, out_en, out_en);
+            o_done <= out_en;
+        end if;
     end process;
         
     -- Descrizione funzione di stato della FSM
@@ -197,9 +196,9 @@ begin
                      curr_state <= GET_ADDR;           
                 when GET_ADDR =>
                     if i_start = '0' then
-                        curr_state <= ASK_MEM;
+                        curr_state <= WRITE_IN;
                     end if;
-                when ASK_MEM =>
+                when WRITE_IN =>
                      curr_state <= WAIT_START;
             end case;
         end if;
@@ -228,13 +227,12 @@ begin
                 we_addr <= '1';
                 clr_addr <= '0';
                 contested_mem_en <= '1';   
-            when ASK_MEM=>
-                prefire_done <= '1';
-                we_addr <= '0';
+            when WRITE_IN=>
                 clr_addr <= '0';
                 contested_mem_en <= '0';
                 out_en <= '1';
                 write <= '1';
+                out_en <= '1';          
         end case;
     end process;
 end arch_project_reti_logiche;
