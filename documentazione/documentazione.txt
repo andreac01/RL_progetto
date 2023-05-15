@@ -9,7 +9,8 @@
 
 
 \title{\textbf{Prova Finale: Progetto di Reti logice}}
-\author{Andrea Cerutti, Marco Alfano}
+\author{Andrea Cerutti - 10742171
+\\ Marco Alfano - 10732627}
 \date{a.a. 2022-2023}
 
 \begin{document}
@@ -111,7 +112,7 @@
 
 \label{architettura}
 \section{Architettura}
-    Prima di entrare nei dettagli di ogni modulo presente nel componente verrà fornita una visione d'insime della sua struttura. I moduli principali sono un deserializzatore per leggere e salvare il segnale in input, un blocco di 4 registri in uscita per salvare gli output precedenti, una macchina a stati finiti per pilotare correttamente questi componenti e gestire l'interfaccia con la memoria. A questi componenti si aggiungono altri moduli secondari e di supporto.
+    Prima di entrare nei dettagli di ogni modulo presente nel componente verrà fornita una visione d'insieme della sua struttura. I moduli principali sono un deserializzatore per leggere e salvare il segnale in input, un blocco di 4 registri in uscita per salvare gli output precedenti, una macchina a stati finiti per pilotare correttamente questi componenti e gestire l'interfaccia con la memoria. A questi componenti si aggiungono altri moduli secondari e di supporto.
     \label{deserializzatore}
     \subsection{Deserializzatore}
         Il primo modulo del progetto è un deserializzatore ovvero un componente in grado di trasformare una sequenza seriale di bit in ingresso in un segnale parallelo equivalente. Per gli scopi del progetto il componente deve essere pilotabile in modo da deserializzare scrivendo, a scelta, su due registri differenti:
@@ -136,7 +137,7 @@
         Il secondo modulo è un componente ben noto dal corso di reti logiche. Si tratta infatti di un semplice DMUX che permette di selezionare il registro di uscita, tra i quattro possibili, su cui scrivere. In particolare i segnali relativi a questo componente sono:
         \begin{itemize}
             \item \textbf{reg\_ch}, segnale di due bit proveniente dal deserializzatore che rappresenta la codifica binaria del canale di uscita da abilitare;
-            \item \textbf{write}, rappresenza il segnale da propagare verso l'uscita del DMUX selezionata
+            \item \textbf{write}, rappresenta il segnale da propagare verso l'uscita del DMUX selezionata
             \item \textbf{we\_z0}, \textbf{we\_z1}, \textbf{we\_z2}, \textbf{we\_z3}, rappresentano le uscite del DMUX. Ogni uscita, se posta ad '1', abilita la scrittura sul registro di uscita corrispondente. Questi segnali sono tutti posti di default a '0' e quando selezionati assumono il valore del segnale \textbf{write}.
         \end{itemize}
 
@@ -175,7 +176,7 @@
             \item \textbf{WRITE\_IN}, In questo stato la macchina riceve la risposta da parte della memoria nella prima metà del clock. Sul fronte di discesa, ovvero a metà del clock corrispondente a questo stato, viene effettuata la scrittura dei valori letti dalla memoria sul registro corrispondente al canale selezionato. Per compiere le operazioni di  lettura \textbf{clr\_addr} viene portato a '0', mentre \textbf{contested\_mem\_addr} a '1'. Per abilitare la scrittura sui registri \textbf{write} è posto a '1'. Al termine del ciclo di clock la macchina passa allo stato \textbf{DONE};
             \item \textbf{DONE}, in questo stato vengono semplicemente abilitate le uscite \textbf{o\_z1}..\textbf{o\_z3} ponendo il valore \textbf{out\_en} a '1'. Da notare che \textbf{out\_en} corrisponde all'uscita \textbf{o\_done}, che quindi assume valore '1' durante questo stato. Dopo un solo ciclo di clock si ritorna allo stato \textbf{WAIT\_START}.
         \end{itemize}
-        Di seguito quindi riportiamo un grafico rappresentante il comportamento della FSM. Le uscite non specificate hanno valori di default.
+        Di seguito quindi riportiamo un grafico rappresentativo del comportamento della FSM. Le uscite non specificate hanno valore di default.
         \vspace{6pt}
         \\
         \includegraphics[scale = 0.45, center]{images/FSM.png}
@@ -185,10 +186,10 @@
         \subsubsection{Supporto 1 - o\_mem\_en}
             Il primo modulo di supporto è combinatorio compie l'assegnamento:\\
                 \textbf{o\_mem\_out} <= \textbf{contested\_mem\_en} and not \textbf{i\_start};\\
-            Ciò, data la struttura della FSM implica che \textbf{o\_mem\_en}, abbia il valore '1' solamente nel ciclo di clock appena successivo al termine dell'input. Questo permette una richiesta immediata di lettura dalla memoria.
+            Ciò, data la struttura della FSM, implica che \textbf{o\_mem\_en}, abbia il valore '1' solamente nel ciclo di clock appena successivo al termine dell'input. Questo permette una richiesta immediata di lettura dalla memoria.
         \subsubsection{Supporto 2 - o\_done}
             Il secondo modulo di supporto è un componente che assegna il valore di \textbf{out\_en} ad \textbf{o\_done}.
-            Questo modulo inoltre si assicura di mostrare il contenuto dei registri \textbf{reg\_z0}..\textbf{reg\_z3} sulle uscite corrispettive solamente quando \textbf{o\_done} vale '1'.
+            Questo modulo inoltre si assicura di mostrare il contenuto dei registri \textbf{reg\_z0}..\textbf{reg\_z3} sulle uscite corrispondenti solamente quando \textbf{o\_done} vale '1'.
     \subsection{Schematica completa}
         Alla luce di quanto esposto in questa sezione riportiamo una schematica più precisa del componente richiesto.\\
         \includegraphics[scale = 0.45, center]{images/componente_new.png}
@@ -263,8 +264,8 @@ Slack (MET) :             47.473ns  (required time - arrival time)
     Può risultare interessante soffermarsi brevemente a studiare la schematica generata. Essa risulta composta dai tre moduli principali:
     \begin{itemize}
         \item \textbf{FSM}, modulo descritto nella sezione \hyperref[fsm]{2.4}, viene generato sfruttando la codifica binaria che minimizza il numero di flip-flop richiesti per la rappresentazione dei suoi stati;
-        \item \textbf{blocco di de-serializzazione}, questo modulo, descritto nella sezione \hyperref[deserializzatore]{2.1}, è l'unico la cui rappresentazione è stata parzialmente affidata ad una libreria. La sintesi risultante è minima con 18 flip-flop;
-        \item \textbf{blocco registri uscite e LUT di trasparenza}. Questo modulo è responsabile sia della gestione della scrittura sui registri di uscita che della logica relativa al segnale \textbf{o\_done}.
+        \item \textbf{blocco di deserializzazione}, questo modulo, descritto nella sezione \hyperref[deserializzatore]{2.1}, è l'unico la cui rappresentazione è stata parzialmente affidata ad una libreria. La sintesi risultante è minima con 18 flip-flop;
+        \item \textbf{blocco registri di uscita e LUT di trasparenza}. Questo modulo è responsabile sia della gestione della scrittura sui registri di uscita che della logica relativa al segnale \textbf{o\_done}.
     \end{itemize}
     \includegraphics[scale=1, center]{images/schematic.png}
 
@@ -322,7 +323,7 @@ per facilitare la lettura dei grafici delle simulazioni è fornita a seguito una
     \includegraphics[scale=0.35, center]{images/tb_12.png}
 
 \subsubsection{Reset in richiesta alla memoria}
-    Il componente a seguito della fine di una sequenza in ingresso esegue una richiesta alla memoria. E' stato quindi testato con successo che il segnale \textbf{enable\_wire} venga immediatamente posto a '0'.\\
+    Il componente a seguito della fine di una sequenza in ingresso esegue una richiesta alla memoria. È stato quindi testato con successo che il segnale \textbf{enable\_wire} venga immediatamente posto a '0'.\\
     Risulta importante notare come la presenza di un picco su \textbf{enable\_wire} non produca effetti negativi in quanto la memoria esegue operazioni sul fronte di salita del clock.\\
     \\
     \includegraphics[scale=0.35, center]{images/tb_13.png}
