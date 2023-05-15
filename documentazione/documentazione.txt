@@ -191,7 +191,9 @@
             Il secondo modulo di supporto è un componente che assegna il valore di \textbf{out\_en} ad \textbf{o\_done}.
             Questo modulo inoltre si assicura di mostrare il contenuto dei registri \textbf{reg\_z0}..\textbf{reg\_z3} sulle uscite corrispondenti solamente quando \textbf{o\_done} vale '1'.
     \subsection{Schematica completa}
-        Alla luce di quanto esposto in questa sezione riportiamo una schematica più precisa del componente richiesto.\\
+        Alla luce di quanto esposto in questa sezione riportiamo una schematica più precisa del componente richiesto.
+        \vspace{6pt}
+        \\
         \includegraphics[scale = 0.45, center]{images/componente_new.png}
 
 \pagebreak
@@ -293,7 +295,7 @@ per facilitare la lettura dei grafici delle simulazioni è fornita a seguito una
     \\
     Sono stati effettuati differenti simulazioni di questa tipologia che, sia per evitare inutili ridondanze, sia per la loro scarsa leggibilità, non riporteremo.\\
     E' stato ritenuto significativo riportare almeno il testbench fornitoci dai docenti.
-    \\
+    \vspace{6pt}
     \\
     \includegraphics[scale=0.35, center]{images/tb_example.png}
 \subsection{Reset}
@@ -301,9 +303,9 @@ per facilitare la lettura dei grafici delle simulazioni è fornita a seguito una
     Abbiamo ritenuto particolarmente significativa un'analisi esaustiva sugli effetti del reset.\\
     Il componente è stato quindi testato in modo da poter accertare il suo corretto funzionamento in risposta a questo segnale. I grafici riportati di seguito rappresentano la risposta del componente a segnali di reset avvenuti in differenti fasi della computazione. 
 
-\pagebreak
 \subsubsection{Reset tra utilizzi}
-    Il seguente grafico rappresenta la risposta al segnale \textbf{i\_rst} posto a '1' quando il componente si trova a riposo tra due differenti utilizzi. \\
+    Il seguente grafico rappresenta la risposta al segnale \textbf{i\_rst} posto a '1' quando il componente si trova a riposo tra due differenti utilizzi. 
+    \vspace{6pt}
     \\
     \includegraphics[scale=0.35, center]{images/tb_4.png}
 \subsubsection{Reset in acquisizione}
@@ -312,29 +314,33 @@ per facilitare la lettura dei grafici delle simulazioni è fornita a seguito una
     Le differenze tra gli stati risultano cruciali nel definire il corretto funzionamento del componente.\\
     Infatti, mentre i primi due stati puntano ad acquisire solamente i 2 bit relativi all'indirizzo di uscita, il terzo esegue anche operazioni preliminari relative alla richiesta di lettura in memoria. 
     \\
-    Viene quindi proposto un primo grafico in cui il reset viene stimolato durante l'acquisizione dei primi 2 bit. In particolare viene avviata una nuova operazione senza che il segnale \textbf{i\_start} vada a '0'.\\
+    Viene quindi proposto un primo grafico in cui il reset viene stimolato durante l'acquisizione dei primi 2 bit. In particolare viene avviata una nuova operazione senza che il segnale \textbf{i\_start} vada a '0'.
+    \vspace{6pt}
     \\
-    \includegraphics[scale=0.35, center]{images/tb_reset_extra.png}
+    \includegraphics[scale=0.34, center]{images/tb_reset_extra.png}
 
-    \newpage
     
-    La successiva simulazione mostra come il componente risponda correttamente ad un reset avvenuto nella fase di acquisizione dei bit relativi all'indirizzo di memoria.\\
+    La successiva simulazione mostra come il componente risponda correttamente ad un reset avvenuto nella fase di acquisizione dei bit relativi all'indirizzo di memoria.
+    \vspace{6pt}
     \\
-    \includegraphics[scale=0.35, center]{images/tb_12.png}
+    \includegraphics[scale=0.34, center]{images/tb_12.png}
 
 \subsubsection{Reset in richiesta alla memoria}
-    Il componente a seguito della fine di una sequenza in ingresso esegue una richiesta alla memoria. È stato quindi testato con successo che il segnale \textbf{enable\_wire} venga immediatamente posto a '0'.\\
-    Risulta importante notare come la presenza di un picco su \textbf{enable\_wire} non produca effetti negativi in quanto la memoria esegue operazioni sul fronte di salita del clock.\\
+    Il componente a seguito della fine di una sequenza in ingresso esegue una richiesta alla memoria. È stato quindi testato con successo che il segnale \textbf{enable\_wire} venga immediatamente posto a '0'.
+    Risulta importante notare come la presenza di un picco su \textbf{enable\_wire} non produca effetti negativi in quanto la memoria esegue operazioni sul fronte di salita del clock.
+    \vspace{6pt}
     \\
-    \includegraphics[scale=0.35, center]{images/tb_13.png}
-\pagebreak
+    \includegraphics[scale=0.34, center]{images/tb_13.png}
+    
 \subsubsection{Reset in scrittura registri interni}
-    Nel caso di un reset avvenuto mentre il componente si trova nella fase di salvataggio dei dati in uscita della memoria sui registri interni, il componente reagisce correttamente azzerando in modo asincrono sia i registri che lo stato della \textbf{FSM} e le \textbf{uscite}. Di seguito riportiamo il grafico della simulazione.\\
+    Nel caso di un reset avvenuto mentre il componente si trova nella fase di salvataggio dei dati in uscita della memoria sui registri interni, il componente reagisce correttamente azzerando in modo asincrono sia i registri che lo stato della \textbf{FSM} e le \textbf{uscite}. Di seguito riportiamo il grafico della simulazione.
+    \vspace{6pt}
     \\
     \includegraphics[scale=0.35, center]{images/tb_14.png}
 
 \subsubsection{Reset in fase finale}
-    La fase di esposizione dei valori sulle uscite risulta particolarmente delicata. Se il componente riceve un segnale \textbf{i\_rst} mentre il segnale \textbf{o\_done} è attivo, allora quest'ultimo deve essere immediatamente posto a zero insieme ai segnali di uscita \textbf{o\_z0}...\textbf{o\_z3}. Segue il diagramma di una simulazione a riguardo.\\
+    La fase di esposizione dei valori sulle uscite risulta particolarmente delicata. Se il componente riceve un segnale \textbf{i\_rst} mentre il segnale \textbf{o\_done} è attivo, allora quest'ultimo deve essere immediatamente posto a zero insieme ai segnali di uscita \textbf{o\_z0}...\textbf{o\_z3}. Segue il diagramma di una simulazione a riguardo.
+    \vspace{6pt}
     \\
     \includegraphics[scale=0.35, center]{images/tb_15.png}
 
