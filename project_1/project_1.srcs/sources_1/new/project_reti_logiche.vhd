@@ -86,13 +86,13 @@ begin
     end process;
     
     -- Setting di o_mem_en con il contested
-    contested_memory : process(i_clk, i_start)
+    contested_memory : process(i_clk, i_start, i_rst)
     begin
-        o_mem_en <= contested_mem_en and not i_start;
+        o_mem_en <= contested_mem_en and not i_start and not i_rst;
     end process;
     
     -- DMUX:
-    -- Quando è richiesta la scrittura seleziona il canale sulla base di reg_ch
+    -- Quando Ã¨ richiesta la scrittura seleziona il canale sulla base di reg_ch
     ch_dmux : process(reg_ch, write) 
     -- Processo combinatorio
     begin
